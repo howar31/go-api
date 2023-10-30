@@ -393,7 +393,13 @@ func (mc *MembershipController) Onboarding(c *gin.Context) (int, gin.H, error) {
 	}
 
 	user, _ := mc.Storage.GetUserByID(fmt.Sprint(userID))
-	go mc.sendAssignRoleMail(constants.RoleExplorer, user.Email.String)
+	var userEmail string
+	if user.Email.Valid {
+		userEmail = user.Email.String
+	} else {
+		userEmail = "" // or handle the case when email is NULL
+	}
+	go mc.sendAssignRoleMail(constants.RoleExplorer, userEmail)
 
 	if user.Activated.Valid && !user.Activated.Time.IsZero() {
 		activatedString := user.Activated.Time.Format(time.RFC3339)
